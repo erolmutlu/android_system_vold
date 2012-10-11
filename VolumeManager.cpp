@@ -1538,8 +1538,12 @@ int VolumeManager::cleanupAsec(Volume *v, bool force) {
     if (!v->isPrimaryStorage())
         return 0;
 
-    while(mActiveContainers->size()) {
-        AsecIdCollection::iterator it = mActiveContainers->begin();
+    int rc = unmountAllAsecsInDir(Volume::SEC_ASECDIR_EXT);
+
+    AsecIdCollection toUnmount;
+    // Find the remaining OBB files that are on external storage.
+    for (AsecIdCollection::iterator it = mActiveContainers->begin(); it != mActiveContainers->end();
+            ++it) {
         ContainerData* cd = *it;
 
         if (cd->type == ASEC) {
